@@ -5,6 +5,8 @@ import PySide2.QtWidgets as QtWidgets
 from functools import partial
 import maya.cmds as cmds
 from pathlib import Path
+import math
+
 #keep track of transform settings created by user
 class Transform():
     def __init__(self):
@@ -54,7 +56,6 @@ def showWindow():
         x = cmds.getAttr(t.get_center() + ".translateX")
         y = cmds.getAttr(t.get_center() + ".translateY")
         z = cmds.getAttr(t.get_center() + ".translateZ")
-        #cmds.move( x, y, z, cmds.ls(t.get_center()), absolute=True )
         #change ui text
         ui.center_objs.setText(t.get_center())
         print("set center ", t.get_center())
@@ -63,7 +64,6 @@ def showWindow():
         selected = cmds.ls(sl=True,long=True) or []
         list_outer = []
         for item in cmds.ls(selected):
-            print(item, "==", t.get_center)
             if not(item == t.get_center):
                 list_outer.append(item)
         t.set_outer(list_outer)
@@ -73,34 +73,36 @@ def showWindow():
             if(list_outer.index(item) < (len(list_outer) - 1)):
                 list_str += ", "
         ui.outer_objs.setText(list_str)
-        print("set outer ", t.get_outer())
 
     def set_radius(r):
         radius = float(r)
         t.set_radius(radius)
-        print("set radius", t.get_radius())
 
     def apply():
-        print(t.get_radius())
-        print(len(t.get_outer()))
-        print(t.get_center())
         if (t.get_radius() > -1) and (len(t.get_outer()) > 0) and not(t.get_center() == None):
             #find degrees to rotate around 
             degrees = 360.0 / (len(t.get_outer()))
             deg_acc = 0
+            #find world position of center
+            center_world_pos = cmds.xform(t.get_center(),q=1,ws=1,rp=1)
             for obj in t.get_outer():
-                #offset by radius
-                x = cmds.getAttr(t.get_center() + ".translateX")
-                y = cmds.getAttr(t.get_center() + ".translateY")
-                z = cmds.getAttr(t.get_center() + ".translateZ")
-                # cmds.move( x, y, z + t.get_radius(), cmds.ls(obj)[0], absolute=True )
-                # cmds.rotate(0, str(degrees) + 'deg', 0, cmds.ls(t.get_locator()))
-                cmds.move( x, y, z + t.get_radius(), cmds.ls(obj)[0], absolute=True )
-                cmds.rotate( 0, str(deg_acc) + 'deg', 0, cmds.ls(obj)[0], pivot=(x, y, z) )
+                #get x, y, z of center object
+                center_x = center_world_pos[0]
+                center_y = center_world_pos[1]
+                center_z = center_world_pos[2] 
+                
+                #Add the radius to the z-axis
+                obj_z = center_z + t.get_radius()
+                cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
+
+                radians = (deg_acc) * (math.pi / 180)
+
+                x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
+
+                cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+
                 deg_acc += degrees
-                print("moved " + obj + " " + str(degrees) + 'deg')
-                #rotate Null object
-                #cmds.setAttr(t.get_locator().ry,degrees)
 
     #connect buttons to functions
     ui.center_button.clicked.connect(partial(clicked_center_button))
