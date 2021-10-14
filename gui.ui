@@ -111,31 +111,17 @@
     </item>
     <item row="6" column="1">
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="checkBox_4">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="circle_check">
         <property name="text">
-         <string>Sphere</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="checkBox_5">
-        <property name="text">
-         <string>Cube</string>
+         <string>Circle</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QCheckBox" name="checkBox_3">
+       <widget class="QCheckBox" name="sphere_checkbox">
         <property name="text">
-         <string>Square</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBox_2">
-        <property name="text">
-         <string>Circle</string>
+         <string>Sphere</string>
         </property>
        </widget>
       </item>
@@ -179,21 +165,21 @@
     <item row="8" column="1">
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="1" column="0">
-       <widget class="QCheckBox" name="checkBox_7">
+       <widget class="QCheckBox" name="random_outline_checkbox">
         <property name="text">
          <string>Random outline </string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBox_6">
+       <widget class="QCheckBox" name="uniform_checkbox">
         <property name="text">
          <string>Uniform outline</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QCheckBox" name="checkBox_8">
+       <widget class="QCheckBox" name="random_fill_checkbox">
         <property name="text">
          <string>Random fill</string>
         </property>
