@@ -13,7 +13,9 @@ from random import randrange
 #keep track of transform settings created by user
 class Transform():
     def __init__(self):
-        pass
+        self.radius = 0.0
+        self.outer = None
+        self.center = None
     #center object
     def set_center(self, c):
         self.center = c
@@ -22,7 +24,7 @@ class Transform():
         self.outer = o 
     #radius
     def set_radius(self, r):
-        self. radius = r
+        self.radius = r
     def set_shape(self, s):
         self.shape = s
     def set_scatter(self, s):
@@ -126,7 +128,13 @@ def showWindow():
             t.set_scatter("random_fill")
 
     def apply():
-        if (t.get_radius() > -1) and (len(t.get_outer()) > 0) and not(t.get_center() == None):
+        if t.get_center() == None:
+            ui.warnings.setText("<font color='red'>Warning:Please set a center object.</font>")
+            return
+        elif t.get_outer() == None:
+            ui.warnings.setText("<font color='red'>Warning:Please set at least 1 outer object.</font>")
+            return
+        else:
             if(t.get_shape() == "circle"):
                 #shape is circle and outline is uniform
                 if(t.get_scatter() == "uniform_outline"):
@@ -181,7 +189,7 @@ def showWindow():
                     for obj in t.get_outer():
                         #find degrees to rotate around 
                         degrees = randrange(360.0)
-                        rand_rad = randrange(float(t.get_radius))
+                        rand_rad = randrange(t.get_radius())
 
                         #get x, y, z of center object
                         center_x = center_world_pos[0]
@@ -198,6 +206,9 @@ def showWindow():
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+    #Close dialog
+    def close():
+        ui.done(0)
 
     #connect buttons to functions
     ui.center_button.clicked.connect(partial(clicked_center_button))
@@ -209,6 +220,7 @@ def showWindow():
     ui.uniform_checkbox.stateChanged.connect(partial(set_scatter_uniform_outline))
     ui.random_outline_checkbox.stateChanged.connect(partial(set_scatter_random_outline))
     ui.random_fill_checkbox.stateChanged.connect(partial(set_scatter_random_fill))
+    ui.close_button.clicked.connect(partial(close))
      
     # show the QT ui
     ui.show()
