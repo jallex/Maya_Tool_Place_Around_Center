@@ -1,7 +1,6 @@
-import os
-import PySide2.QtCore as QtCore
-import PySide2.QtUiTools as QtUiTools
-import PySide2.QtWidgets as QtWidgets
+from PySide2.QtCore import * 
+from PySide2.QtGui import *
+from PySide2.QtUiTools import *
 from functools import partial
 import maya.cmds as cmds
 from maya import OpenMayaUI
@@ -40,23 +39,24 @@ class Transform():
     def get_scatter(self):
         return self.scatter
         
-def maya_main_window():
-	main_window_ptr=OpenMayaUI.MQtUtil.mainWindow()
-	print(wrapInstance(main_window_ptr, QtWidgets.QWidget))
-	return wrapInstance(main_window_ptr, QtWidgets.QWidget)
-
 #show gui window
 def showWindow():
     # get this files location so we can find the .ui file in the /ui/ folder alongside it
-    #UI_FILE = Path(__file__).parent.resolve() / "gui.ui"
-    UI_FILE = r"/Users/jackieallex/Documents/capstone/Maya_Python_Place-Rotate_Many_Objects_tool/gui.ui"
+    UI_FILE = Path(__file__).parent.resolve() / "gui.ui"
+    loader = QUiLoader()
+    file = QFile(UI_FILE)
+    file.open(QFile.ReadOnly)
+     
+    mayaMainWindowPtr = omui.MQtUtil.mainWindow()
+    mayaMainWindow = wrapInstance(int(mayaMainWindowPtr), QWidget)
+    ui = loader.load(file, parentWidget=mayaMainWindow)
+    file.close()
     
-    # do some QT loading stuff
-    ui_file = QtCore.QFile(UI_FILE)
-    ui_file.open(QtCore.QFile.ReadOnly)
-    loader = QtUiTools.QUiLoader()
-    ui = loader.load(ui_file, parentWidget=maya_main_window())
-    ui_file.close()
+    ui.setParent(mayaMainWindow)
+    ui.setWindowFlags(Qt.Window)
+    ui.setWindowTitle('Place Around Center Tool')
+    ui.setObjectName('Place_Around_Center')
+    ui.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint)
 
     t = Transform()
 
