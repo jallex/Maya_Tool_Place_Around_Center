@@ -1,7 +1,7 @@
-import os
-import PySide2.QtCore as QtCore
-import PySide2.QtUiTools as QtUiTools
-import PySide2.QtWidgets as QtWidgets
+from PySide2.QtCore import * 
+from PySide2.QtGui import *
+from PySide2.QtUiTools import *
+from PySide2.QtWidgets import *
 from functools import partial
 import maya.cmds as cmds
 from maya import OpenMayaUI
@@ -40,23 +40,25 @@ class Transform():
     def get_scatter(self):
         return self.scatter
         
-def maya_main_window():
-	main_window_ptr=OpenMayaUI.MQtUtil.mainWindow()
-	print(wrapInstance(main_window_ptr, QtWidgets.QWidget))
-	return wrapInstance(main_window_ptr, QtWidgets.QWidget)
-
 #show gui window
 def showWindow():
+    print("here")
     # get this files location so we can find the .ui file in the /ui/ folder alongside it
-    #UI_FILE = Path(__file__).parent.resolve() / "gui.ui"
-    UI_FILE = r"/Users/jackieallex/Documents/capstone/Maya_Python_Place-Rotate_Many_Objects_tool/gui.ui"
+    UI_FILE = str(Path(__file__).parent.resolve() / "gui.ui")
+    loader = QUiLoader()
+    file = QFile(UI_FILE)
+    file.open(QFile.ReadOnly)
+     
+    mayaMainWindowPtr = OpenMayaUI.MQtUtil.mainWindow()
+    mayaMainWindow = wrapInstance(int(mayaMainWindowPtr), QWidget)
+    ui = loader.load(file, parentWidget=mayaMainWindow)
+    file.close()
     
-    # do some QT loading stuff
-    ui_file = QtCore.QFile(UI_FILE)
-    ui_file.open(QtCore.QFile.ReadOnly)
-    loader = QtUiTools.QUiLoader()
-    ui = loader.load(ui_file, parentWidget=maya_main_window())
-    ui_file.close()
+    ui.setParent(mayaMainWindow)
+    ui.setWindowFlags(Qt.Window)
+    ui.setWindowTitle('Place Around Center Tool')
+    ui.setObjectName('Place_Around_Center')
+    ui.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint)
 
     t = Transform()
 
@@ -97,34 +99,34 @@ def showWindow():
     def set_circle(c):
         isChecked = ui.circle_check.checkState()
         if isChecked:
-            ui.sphere_checkbox.setCheckState(QtCore.Qt.Unchecked)
+            ui.sphere_checkbox.setCheckState(Qt.Unchecked)
             t.set_shape("circle") 
 
     def set_sphere(s):
         isChecked = ui.sphere_checkbox.checkState()
         if isChecked:
-            ui.circle_check.setCheckState(QtCore.Qt.Unchecked)
+            ui.circle_check.setCheckState(Qt.Unchecked)
             t.set_shape("sphere")
 
     def set_scatter_uniform_outline(s):
         isChecked = ui.uniform_checkbox.checkState()
         if isChecked:
-            ui.random_outline_checkbox.setCheckState(QtCore.Qt.Unchecked)
-            ui.random_fill_checkbox.setCheckState(QtCore.Qt.Unchecked)
+            ui.random_outline_checkbox.setCheckState(Qt.Unchecked)
+            ui.random_fill_checkbox.setCheckState(Qt.Unchecked)
             t.set_scatter("uniform_outline") 
 
     def set_scatter_random_outline(s):
         isChecked = ui.random_outline_checkbox.checkState()
         if isChecked:
-            ui.uniform_checkbox.setCheckState(QtCore.Qt.Unchecked)
-            ui.random_fill_checkbox.setCheckState(QtCore.Qt.Unchecked)
+            ui.uniform_checkbox.setCheckState(Qt.Unchecked)
+            ui.random_fill_checkbox.setCheckState(Qt.Unchecked)
             t.set_scatter("random_outline")
 
     def set_scatter_random_fill(s):
         isChecked = ui.random_fill_checkbox.checkState()
         if isChecked:
-            ui.random_outline_checkbox.setCheckState(QtCore.Qt.Unchecked)
-            ui.uniform_checkbox.setCheckState(QtCore.Qt.Unchecked)
+            ui.random_outline_checkbox.setCheckState(Qt.Unchecked)
+            ui.uniform_checkbox.setCheckState(Qt.Unchecked)
             t.set_scatter("random_fill")
 
     def apply():
@@ -225,6 +227,7 @@ def showWindow():
     # show the QT ui
     ui.show()
     return ui
+
 
 if __name__ == "__main__":
     window=showWindow()
