@@ -44,12 +44,20 @@ class Transform():
 def showWindow():
     print("here")
     # get this files location so we can find the .ui file in the /ui/ folder alongside it
+<<<<<<< HEAD
     UI_FILE = str(Path(__file__).parent.resolve() / "gui.ui")
+=======
+    UI_FILE = Path(__file__).parent.resolve() / "gui.ui"
+>>>>>>> f4ed55af1c659f5ef3e5b62a5ce8303a96e3d7a3
     loader = QUiLoader()
     file = QFile(UI_FILE)
     file.open(QFile.ReadOnly)
      
+<<<<<<< HEAD
     mayaMainWindowPtr = OpenMayaUI.MQtUtil.mainWindow()
+=======
+    mayaMainWindowPtr = omui.MQtUtil.mainWindow()
+>>>>>>> f4ed55af1c659f5ef3e5b62a5ce8303a96e3d7a3
     mayaMainWindow = wrapInstance(int(mayaMainWindowPtr), QWidget)
     ui = loader.load(file, parentWidget=mayaMainWindow)
     file.close()
