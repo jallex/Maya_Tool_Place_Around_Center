@@ -19,29 +19,8 @@ class Transform():
         self.center = None
         self.scatter = None
         self.shape = None
-    #center object
-    def set_center(self, c):
-        self.center = c
-    #outer object(s)
-    def set_outer(self, o):
-        self.outer = o 
-    #radius
-    def set_radius(self, r):
-        self.radius = r
-    def set_shape(self, s):
-        self.shape = s
-    def set_scatter(self, s):
-        self.scatter = s
-    def get_center(self):
-        return self.center
-    def get_outer(self):
-        return self.outer
-    def get_radius(self):
-        return self.radius 
-    def get_shape(self):
-        return self.shape
-    def get_scatter(self):
-        return self.scatter
+        self.duplicate = False
+        self.num_duplicate = 0
         
 #show gui window
 def showWindow():
@@ -71,22 +50,21 @@ def showWindow():
         if not(len(selected) == 1):
             print("Please set center to be exactly 1 selected object.")
         else: 
-            t.set_center(selected[0])
+            t.center = selected[0]
         #Change location of locator to be at center object's pivot position
-        x = cmds.getAttr(t.get_center() + ".translateX")
-        y = cmds.getAttr(t.get_center() + ".translateY")
-        z = cmds.getAttr(t.get_center() + ".translateZ")
+        x = cmds.getAttr(t.center + ".translateX")
+        y = cmds.getAttr(t.center + ".translateY")
+        z = cmds.getAttr(t.center + ".translateZ")
         #change ui text
-        ui.center_objs.setText(t.get_center()[1:])
-        print("set center ", t.get_center())
+        ui.center_objs.setText(t.center[1:])
 
     def clicked_outer_button():
         selected = cmds.ls(sl=True,long=True) or []
         list_outer = []
         for item in cmds.ls(selected):
-            if not(item == t.get_center):
+            if not(item == t.center):
                 list_outer.append(item)
-        t.set_outer(list_outer)
+        t.outer = list_outer
         list_str = ""
         for item in list_outer:
             list_str += str(item)
@@ -94,53 +72,64 @@ def showWindow():
                 list_str += ", "
         ui.outer_objs.setText(list_str)
 
-    def set_radius(r):
-        radius = float(r)
-        t.set_radius(radius)
-
     def set_circle(c):
         isChecked = ui.circle_check.checkState()
         if isChecked:
             ui.sphere_checkbox.setCheckState(Qt.Unchecked)
-            t.set_shape("circle") 
+            t.shape = "circle"
         else:
-            t.set_shape(None)
+            t.shape = None
 
     def set_sphere(s):
         isChecked = ui.sphere_checkbox.checkState()
         if isChecked:
             ui.circle_check.setCheckState(Qt.Unchecked)
-            t.set_shape("sphere")
+            t.shape = "sphere"
         else:
-            t.set_shape(None)
+            t.shape = None
+
+    def set_radius(r):
+        t.radius = float(r)
 
     def set_scatter_uniform_outline(s):
         isChecked = ui.uniform_checkbox.checkState()
         if isChecked:
             ui.random_outline_checkbox.setCheckState(Qt.Unchecked)
             ui.random_fill_checkbox.setCheckState(Qt.Unchecked)
-            t.set_scatter("uniform_outline") 
+            t.scatter = "uniform_outline"
         else:
-            t.set_scatter(None)
+            t.scatter = None
 
     def set_scatter_random_outline(s):
         isChecked = ui.random_outline_checkbox.checkState()
         if isChecked:
             ui.uniform_checkbox.setCheckState(Qt.Unchecked)
             ui.random_fill_checkbox.setCheckState(Qt.Unchecked)
-            t.set_scatter("random_outline")
+            t.scatter = "random_outline"
         else:
-            t.set_scatter(None)
+            t.scatter = None
 
     def set_scatter_random_fill(s):
         isChecked = ui.random_fill_checkbox.checkState()
         if isChecked:
             ui.random_outline_checkbox.setCheckState(Qt.Unchecked)
             ui.uniform_checkbox.setCheckState(Qt.Unchecked)
-            t.set_scatter("random_fill")
+            t.scatter = "random_fill"
         else:
-            t.set_scatter(None)
+            t.scatter = None
+
+    def set_duplicate(d):
+        isChecked = ui.duplicate.checkState()
+        if isChecked:
+            t.duplicate = True
+        else:
+            t.duplicate = False
+
+    #set number of times to duplicate
+    def set_num_duplicate(n):
+        t.num_duplicate = int(n)
     
+    #find a random 3D point that is exactly the given distance away from (0,0,0)
     def rand_3d(dist):
         x = math.sqrt(random.random() * dist ** 2) * random.choice((1, -1))
         y = math.sqrt(random.random() * (dist ** 2 - x ** 2)) * random.choice((1, -1))
@@ -148,163 +137,309 @@ def showWindow():
 
         return (x, y, z)
 
+    #get the distance the 3D point is away from (0,0,0)
     def dist(vector):
         x, y, z = vector
         return math.sqrt(x ** 2 + y ** 2 + z ** 2)
 
+    #apply button clicked
     def apply():
-        if t.get_center() == None:
+        if t.center == None:
             ui.warnings.setText("<font color='red'>Warning:Please set a center object.</font>")
             return
-        elif t.get_outer() == None:
+        elif t.outer == None:
             ui.warnings.setText("<font color='red'>Warning:Please set at least 1 outer object.</font>")
             return
-        elif t.get_shape() == None:
+        elif t.shape == None:
             ui.warnings.setText("<font color='red'>Warning:Please check 1 shape.</font>")
             return
-        elif t.get_scatter() == None:
+        elif t.scatter == None:
             ui.warnings.setText("<font color='red'>Warning:Please check 1 scatter type.</font>")
             return
-        elif t.get_radius() == 0.0:
+        elif t.radius == 0.0:
             ui.warnings.setText("<font color='red'>Warning:Radius is set to 0 cm.</font>") 
         else:
             ui.warnings.setText("")
-        if(t.get_shape() == "circle"):
-            #shape is circle and outline is uniform
-            if(t.get_scatter() == "uniform_outline"):
-                #find degrees to rotate around 
-                degrees = 360.0 / (len(t.get_outer()))
-                deg_acc = 0
-                #find world position of center
-                center_world_pos = cmds.xform(t.get_center(),q=1,ws=1,rp=1)
-                for obj in t.get_outer():
-                    #get x, y, z of center object
-                    center_x = center_world_pos[0]
-                    center_y = center_world_pos[1]
-                    center_z = center_world_pos[2] 
-                    
-                    #Add the radius to the z-axis
-                    obj_z = center_z + t.get_radius()
-                    cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
-
-                    radians = (deg_acc) * (math.pi / 180)
-
-                    x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
-                    z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
-
-                    cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
-
-                    deg_acc += degrees
-            elif(t.get_scatter() == "random_outline"):
-                #find world position of center
-                center_world_pos = cmds.xform(t.get_center(),q=1,ws=1,rp=1)
-                for obj in t.get_outer():
+        if(t.duplicate == False):
+            if(t.shape == "circle"):
+                #shape is circle and outline is uniform
+                if(t.scatter == "uniform_outline"):
                     #find degrees to rotate around 
-                    degrees = randrange(360.0)
+                    degrees = 360.0 / (len(t.outer))
+                    deg_acc = 0
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in t.outer:
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+                        
+                        #Add the radius to the z-axis
+                        obj_z = center_z + t.radius
+                        cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
-                    #get x, y, z of center object
-                    center_x = center_world_pos[0]
-                    center_y = center_world_pos[1]
-                    center_z = center_world_pos[2] 
-                    
-                    #Add the radius to the z-axis
-                    obj_z = center_z + t.get_radius()
-                    cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
+                        radians = (deg_acc) * (math.pi / 180)
 
-                    radians = (degrees) * (math.pi / 180)
+                        x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
-                    x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
-                    z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
+                        cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
 
-                    cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
-            elif(t.get_scatter() == "random_fill"):
-                #find world position of center
-                center_world_pos = cmds.xform(t.get_center(),q=1,ws=1,rp=1)
-                for obj in t.get_outer():
+                        deg_acc += degrees
+                elif(t.scatter == "random_outline"):
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in t.outer:
+                        #find degrees to rotate around 
+                        degrees = randrange(360.0)
+
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+                        
+                        #Add the radius to the z-axis
+                        obj_z = center_z + t.radius
+                        cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
+
+                        radians = (degrees) * (math.pi / 180)
+
+                        x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
+
+                        cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+                elif(t.scatter == "random_fill"):
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in t.outer:
+                        #find degrees to rotate around 
+                        degrees = randrange(360.0)
+                        rand_rad = randrange(t.radius)
+
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+                        
+                        #Add the radius to the z-axis
+                        obj_z = center_z + rand_rad
+                        cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
+
+                        radians = (degrees) * (math.pi / 180)
+
+                        x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
+
+                        cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+            if(t.shape == "sphere"):
+                #shape is circle and outline is uniform
+                if(t.scatter == "uniform_outline"):
                     #find degrees to rotate around 
-                    degrees = randrange(360.0)
-                    rand_rad = randrange(t.get_radius())
+                    degrees = 360.0 / (len(t.outer))
+                    deg_acc = 0
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in t.outer:
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+                        
+                        #Add the radius to the z-axis
+                        obj_z = center_z + t.radius
+                        cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
-                    #get x, y, z of center object
-                    center_x = center_world_pos[0]
-                    center_y = center_world_pos[1]
-                    center_z = center_world_pos[2] 
-                    
-                    #Add the radius to the z-axis
-                    obj_z = center_z + rand_rad
-                    cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
+                        radians = (deg_acc) * (math.pi / 180)
 
-                    radians = (degrees) * (math.pi / 180)
+                        x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
-                    x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
-                    z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
+                        cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
 
-                    cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
-        if(t.get_shape() == "sphere"):
-            #shape is circle and outline is uniform
-            if(t.get_scatter() == "uniform_outline"):
-                #find degrees to rotate around 
-                degrees = 360.0 / (len(t.get_outer()))
-                deg_acc = 0
-                #find world position of center
-                center_world_pos = cmds.xform(t.get_center(),q=1,ws=1,rp=1)
-                for obj in t.get_outer():
-                    #get x, y, z of center object
-                    center_x = center_world_pos[0]
-                    center_y = center_world_pos[1]
-                    center_z = center_world_pos[2] 
-                    
-                    #Add the radius to the z-axis
-                    obj_z = center_z + t.get_radius()
-                    cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
+                        deg_acc += degrees
+                elif(t.scatter == "random_outline"):
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in t.outer:
+                        #find degrees to rotate around 
+                        degrees = randrange(360.0)
 
-                    radians = (deg_acc) * (math.pi / 180)
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
 
-                    x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
-                    z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
+                        position = rand_3d(t.radius)
+                        new_x = position[0] + center_x
+                        new_y = position[1] + center_y
+                        new_z = position[2] + center_z
+    
+                        cmds.move( new_x, new_y, new_z, cmds.ls(obj)[0], absolute=True )
 
-                    cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+                        
+                        # cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+                elif(t.scatter == "random_fill"):
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in t.outer:
+                        #find degrees to rotate around 
+                        degrees = randrange(360.0)
+                        rand_rad = randrange(t.radius)
 
-                    deg_acc += degrees
-            elif(t.get_scatter() == "random_outline"):
-                #find world position of center
-                center_world_pos = cmds.xform(t.get_center(),q=1,ws=1,rp=1)
-                for obj in t.get_outer():
+                        x_rand = randrange(-1*t.radius, t.radius)
+                        y_rand = randrange(-1*t.radius, t.radius)
+                        z_rand = randrange(-1*t.radius, t.radius)
+
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0] + x_rand
+                        center_y = center_world_pos[1] + y_rand
+                        center_z = center_world_pos[2] + z_rand
+
+                        cmds.move( center_x, center_y, center_z, cmds.ls(obj)[0], worldSpaceDistance=True )
+
+        else: #duplicate same object
+            duplicate_list = [t.outer[0]]
+            for index in range(t.num_duplicate):
+                name = t.outer[0] + "copy_" + str(index)
+                cmds.duplicate( t.outer[0], n= name)
+                duplicate_list.append(name)
+            if(t.shape == "circle"):
+                #shape is circle and outline is uniform
+                if(t.scatter == "uniform_outline"):
                     #find degrees to rotate around 
-                    degrees = randrange(360.0)
+                    degrees = 360.0 / (len(duplicate_list))
+                    deg_acc = 0
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in duplicate_list:
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+                        
+                        #Add the radius to the z-axis
+                        obj_z = center_z + t.radius
+                        cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
-                    #get x, y, z of center object
-                    center_x = center_world_pos[0]
-                    center_y = center_world_pos[1]
-                    center_z = center_world_pos[2] 
+                        radians = (deg_acc) * (math.pi / 180)
 
-                    position = rand_3d(t.get_radius())
-                    new_x = position[0] + center_x
-                    new_y = position[1] + center_y
-                    new_z = position[2] + center_z
-   
-                    cmds.move( new_x, new_y, new_z, cmds.ls(obj)[0], absolute=True )
+                        x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
-                    
-                    # cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
-            elif(t.get_scatter() == "random_fill"):
-                #find world position of center
-                center_world_pos = cmds.xform(t.get_center(),q=1,ws=1,rp=1)
-                for obj in t.get_outer():
+                        cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+
+                        deg_acc += degrees
+                elif(t.scatter == "random_outline"):
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in duplicate_list:
+                        #find degrees to rotate around 
+                        degrees = randrange(360.0)
+
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+                        
+                        #Add the radius to the z-axis
+                        obj_z = center_z + t.radius
+                        cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
+
+                        radians = (degrees) * (math.pi / 180)
+
+                        x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
+
+                        cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+                elif(t.scatter == "random_fill"):
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in duplicate_list:
+                        #find degrees to rotate around 
+                        degrees = randrange(360.0)
+                        rand_rad = randrange(t.radius)
+
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+                        
+                        #Add the radius to the z-axis
+                        obj_z = center_z + rand_rad
+                        cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
+
+                        radians = (degrees) * (math.pi / 180)
+
+                        x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
+
+                        cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+            if(t.shape == "sphere"):
+                #shape is circle and outline is uniform
+                if(t.scatter == "uniform_outline"):
                     #find degrees to rotate around 
-                    degrees = randrange(360.0)
-                    rand_rad = randrange(t.get_radius())
+                    degrees = 360.0 / (len(duplicate_list))
+                    deg_acc = 0
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in duplicate_list:
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+                        
+                        #Add the radius to the z-axis
+                        obj_z = center_z + t.radius
+                        cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
-                    x_rand = randrange(-1*t.get_radius(), t.get_radius())
-                    y_rand = randrange(-1*t.get_radius(), t.get_radius())
-                    z_rand = randrange(-1*t.get_radius(), t.get_radius())
+                        radians = (deg_acc) * (math.pi / 180)
 
-                    #get x, y, z of center object
-                    center_x = center_world_pos[0] + x_rand
-                    center_y = center_world_pos[1] + y_rand
-                    center_z = center_world_pos[2] + z_rand
+                        x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
-                    cmds.move( center_x, center_y, center_z, cmds.ls(obj)[0], worldSpaceDistance=True )
+                        cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+
+                        deg_acc += degrees
+                elif(t.scatter == "random_outline"):
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in duplicate_list:
+                        #find degrees to rotate around 
+                        degrees = randrange(360.0)
+
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0]
+                        center_y = center_world_pos[1]
+                        center_z = center_world_pos[2] 
+
+                        position = rand_3d(t.radius)
+                        new_x = position[0] + center_x
+                        new_y = position[1] + center_y
+                        new_z = position[2] + center_z
+    
+                        cmds.move( new_x, new_y, new_z, cmds.ls(obj)[0], absolute=True )
+                        
+                        # cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
+                elif(t.scatter == "random_fill"):
+                    #find world position of center
+                    center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
+                    for obj in duplicate_list:
+                        #find degrees to rotate around 
+                        degrees = randrange(360.0)
+                        rand_rad = randrange(t.radius)
+
+                        x_rand = randrange(-1*t.radius, t.radius)
+                        y_rand = randrange(-1*t.radius, t.radius)
+                        z_rand = randrange(-1*t.radius, t.radius)
+
+                        #get x, y, z of center object
+                        center_x = center_world_pos[0] + x_rand
+                        center_y = center_world_pos[1] + y_rand
+                        center_z = center_world_pos[2] + z_rand
+
+                        cmds.move( center_x, center_y, center_z, cmds.ls(obj)[0], worldSpaceDistance=True )
+
 #Close dialog
     def close():
         ui.done(0)
@@ -320,11 +455,13 @@ def showWindow():
     ui.random_outline_checkbox.stateChanged.connect(partial(set_scatter_random_outline))
     ui.random_fill_checkbox.stateChanged.connect(partial(set_scatter_random_fill))
     ui.close_button.clicked.connect(partial(close))
+    ui.duplicate.stateChanged.connect(partial(set_duplicate))
+    ui.num_duplicate.valueChanged.connect(partial(set_num_duplicate))
+
      
     # show the QT ui
     ui.show()
     return ui
-
 
 if __name__ == "__main__":
     window=showWindow()
