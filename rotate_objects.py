@@ -9,6 +9,7 @@ from pathlib import Path
 import math
 from shiboken2 import wrapInstance
 from random import randrange
+import random
 
 #keep track of transform settings created by user
 class Transform():
@@ -139,6 +140,17 @@ def showWindow():
             t.set_scatter("random_fill")
         else:
             t.set_scatter(None)
+    
+    def rand_3d(dist):
+        x = math.sqrt(random.random() * dist ** 2) * random.choice((1, -1))
+        y = math.sqrt(random.random() * (dist ** 2 - x ** 2)) * random.choice((1, -1))
+        z = math.sqrt(dist ** 2 - x ** 2 - y ** 2) * random.choice((1, -1))
+
+        return (x, y, z)
+
+    def dist(vector):
+        x, y, z = vector
+        return math.sqrt(x ** 2 + y ** 2 + z ** 2)
 
     def apply():
         if t.get_center() == None:
@@ -266,30 +278,14 @@ def showWindow():
                     center_y = center_world_pos[1]
                     center_z = center_world_pos[2] 
 
-                    axis = int(randrange(6))
+                    position = rand_3d(t.get_radius())
+                    new_x = position[0] + center_x
+                    new_y = position[1] + center_y
+                    new_z = position[2] + center_z
+   
+                    cmds.move( new_x, new_y, new_z, cmds.ls(obj)[0], absolute=True )
 
-                    if axis == 0:
-                        center_x += t.get_radius()
-                    elif axis == 1:
-                        center_y += t.get_radius()
-                    elif axis == 2:
-                        center_z += t.get_radius()
-                    if axis == 3:
-                        center_x -= t.get_radius()
-                    elif axis == 4:
-                        center_y -= t.get_radius()
-                    else:
-                        center_z -= t.get_radius()
                     
-                    #Add the radius to the z-axis
-                    obj_z = center_z + t.get_radius()
-                    cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
-
-                    radians = (degrees) * (math.pi / 180)
-
-                    x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
-                    z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
-
                     # cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
             elif(t.get_scatter() == "random_fill"):
                 #find world position of center

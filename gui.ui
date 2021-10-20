@@ -45,103 +45,18 @@
      <x>30</x>
      <y>80</y>
      <width>361</width>
-     <height>442</height>
+     <height>479</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="1">
-     <widget class="QPushButton" name="outer_button">
-      <property name="text">
-       <string>Set</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Select Center Object</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Current Center:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="center_objs">
-          <property name="text">
-           <string>None</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </item>
-    <item row="5" column="1">
-     <widget class="QDoubleSpinBox" name="radius_box"/>
-    </item>
-    <item row="6" column="0">
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Shape:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QPushButton" name="center_button">
-      <property name="text">
-       <string>Set</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="0">
-     <widget class="QLabel" name="label_10">
-      <property name="text">
-       <string>Rotate objects towards center</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>How many times to duplicate?</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="1">
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="circle_check">
-        <property name="text">
-         <string>Circle</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="sphere_checkbox">
-        <property name="text">
-         <string>Sphere</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="9" column="1">
+    <item row="11" column="1">
      <widget class="QPushButton" name="pushButton">
       <property name="text">
        <string>Rotate</string>
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="10" column="1">
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="1" column="0">
        <widget class="QCheckBox" name="random_outline_checkbox">
@@ -166,42 +81,46 @@
       </item>
      </layout>
     </item>
-    <item row="8" column="0">
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Scatter type:</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
     <item row="4" column="1">
-     <widget class="QSpinBox" name="spinBox"/>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Duplicate object</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
      <widget class="QCheckBox" name="checkBox">
       <property name="text">
        <string/>
       </property>
      </widget>
     </item>
-    <item row="5" column="0">
-     <widget class="QLabel" name="label_9">
+    <item row="8" column="1">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="circle_check">
+        <property name="text">
+         <string>Circle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="sphere_checkbox">
+        <property name="text">
+         <string>Sphere</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="11" column="0">
+     <widget class="QLabel" name="label_10">
       <property name="text">
-       <string>Radius in cm</string>
+       <string>Rotate objects towards center</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item row="0" column="1">
+     <widget class="QPushButton" name="center_button">
+      <property name="text">
+       <string>Set</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
        <widget class="QLabel" name="label_2">
@@ -238,18 +157,114 @@
         <property name="text">
          <string>None</string>
         </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
     </item>
-    <item row="10" column="0">
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>How many times to duplicate?</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="0">
      <widget class="QLabel" name="warnings">
       <property name="text">
        <string/>
       </property>
      </widget>
     </item>
-    <item row="7" column="0">
+    <item row="1" column="0">
+     <spacer name="verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>10</width>
+        <height>10</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Select Center Object</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Current Center:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="center_objs">
+          <property name="text">
+           <string>None</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Duplicate first outer object</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Scatter type:</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="8" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Shape:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="1">
+     <widget class="QDoubleSpinBox" name="radius_box"/>
+    </item>
+    <item row="6" column="1">
+     <widget class="QSpinBox" name="spinBox"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QPushButton" name="outer_button">
+      <property name="text">
+       <string>Set</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0">
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -261,6 +276,29 @@
        <size>
         <width>10</width>
         <height>10</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>Radius in cm</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <spacer name="verticalSpacer_3">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>13</width>
+        <height>13</height>
        </size>
       </property>
      </spacer>
