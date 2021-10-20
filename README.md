@@ -1,5 +1,5 @@
 # Maya_Tool_Place_Around_Center
-A Maya tool written in Python using maya.cmds that allows users to easily and quickly place objects in/around the perimeter of another object with many customizable parameters.
+A Maya tool written in Python3 using maya.cmds that allows users to easily and quickly place objects in/around the perimeter of another object with many customizable parameters.
 
 # What can this tool do?
 This tool allows the user to
