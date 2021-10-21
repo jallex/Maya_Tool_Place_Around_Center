@@ -15,11 +15,11 @@ This tool allows the user to
   <p align="left">
    <img src="https://user-images.githubusercontent.com/44556715/138215279-8c1dd95f-d149-4c1e-bea2-7102cefbd166.gif">
   </p>
-- Randomly place selected objects in circle area around a center object
+- Randomly place selected objects in circle with a max-radius around a center object
   <p align="left">
    <img src="https://user-images.githubusercontent.com/44556715/138215003-cfd8da1d-ffbe-4d36-8a86-90b83653f195.gif">
   </p>
-- Randomly duplicate object around a center object
+- Randomly duplicate object with a max-radius around a center object
   <p align="left">
    <img src="https://user-images.githubusercontent.com/44556715/138213086-80d059ad-b39e-468b-b174-981216de290a.gif">
   </p>
