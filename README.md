@@ -30,7 +30,7 @@ This tool allows the user to
 
 # How to Use
 1. Download folder 
-2. Open the "execute_tool.py" file in the Maya script editor
-3. Update line 5 of "execute_tool.py" to be the location of the parent folder that this repository folder is located within OR ensure the parent folder is in your PYTHONPATH.
+2. Place files in your Maya scripts folder or update line 5 of "execute_tool.py" to be the location of the parent folder that this repository folder is located within OR ensure the parent folder is in your PYTHONPATH. This ensures that Maya can find all files in the project when run. 
+3. Open the "execute_tool.py" file in the Maya script editor
 4. Run the script, and the GUI for the tool will appear on screen.
 5. Select the center object, surrounding outside objects, and other parameters using GUI and press "Apply" - then watch the magic happen! 
