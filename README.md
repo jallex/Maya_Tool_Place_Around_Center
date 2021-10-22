@@ -19,14 +19,15 @@ This tool allows the user to
   <p align="left">
    <img src="https://user-images.githubusercontent.com/44556715/138215003-cfd8da1d-ffbe-4d36-8a86-90b83653f195.gif">
   </p>
-- Randomly duplicate object with a max-radius around a center object
-  <p align="left">
-   <img src="https://user-images.githubusercontent.com/44556715/138213086-80d059ad-b39e-468b-b174-981216de290a.gif">
-  </p>
-- Randomly place or duplicate object(s) within a 2D circle or 3D sphere around center object
+- Randomly duplicate object with a max-radius around radius of a center object in a 2D circle or 3D sphere
   <p align="left">
    <img src="https://user-images.githubusercontent.com/44556715/138212932-c9c8c082-56ae-4eef-a3dc-2ba54cf6a928.gif">
   </p>
+- Randomly place or duplicate object(s) within a 2D circle or 3D sphere around center object
+  <p align="left">
+   <img src="https://user-images.githubusercontent.com/44556715/138213086-80d059ad-b39e-468b-b174-981216de290a.gif">
+  </p>
+  
 
 # How to Use
 1. Download folder 
