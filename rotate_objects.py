@@ -1,3 +1,8 @@
+# Maya tool which allows users to easily and quickly place objects in/around another object 
+# with a set radius and many other customizable parameters.
+
+# Instructions: to run, navigate to execute_tool.py and run the file
+
 from PySide2.QtCore import * 
 from PySide2.QtGui import *
 from PySide2.QtUiTools import *
@@ -25,11 +30,12 @@ class Transform():
 #show gui window
 def showWindow():
     # get this files location so we can find the .ui file in the /ui/ folder alongside it
-    UI_FILE = str(Path(__file__).parent.resolve() / "gui.ui")
+    UI_FILE = str(Path(__file__).parent.resolve() / "gui_2.ui")
     loader = QUiLoader()
     file = QFile(UI_FILE)
     file.open(QFile.ReadOnly)
      
+    #Get Maya main window to parent gui window to it
     mayaMainWindowPtr = OpenMayaUI.MQtUtil.mainWindow()
     mayaMainWindow = wrapInstance(int(mayaMainWindowPtr), QWidget)
     ui = loader.load(file, parentWidget=mayaMainWindow)
@@ -58,10 +64,13 @@ def showWindow():
         #change ui text
         ui.center_objs.setText(t.center[1:])
 
+    #function for the clicked outer object button
     def clicked_outer_button():
+        #get selected object(s)
         selected = cmds.ls(sl=True,long=True) or []
         list_outer = []
         for item in cmds.ls(selected):
+            #ensure the center object is not part of outer objects
             if not(item == t.center):
                 list_outer.append(item)
         t.outer = list_outer
@@ -70,8 +79,10 @@ def showWindow():
             list_str += str(item)
             if(list_outer.index(item) < (len(list_outer) - 1)):
                 list_str += ", "
+        #show current selected objects as a list of text on gui
         ui.outer_objs.setText(list_str)
 
+    #circle shape changed function
     def set_circle(c):
         isChecked = ui.circle_check.checkState()
         if isChecked:
@@ -80,6 +91,7 @@ def showWindow():
         else:
             t.shape = None
 
+    #sphere shape changed function
     def set_sphere(s):
         isChecked = ui.sphere_checkbox.checkState()
         if isChecked:
@@ -88,9 +100,11 @@ def showWindow():
         else:
             t.shape = None
 
+    #radius changed function
     def set_radius(r):
         t.radius = float(r)
 
+    #uniform outline scatter changed function
     def set_scatter_uniform_outline(s):
         isChecked = ui.uniform_checkbox.checkState()
         if isChecked:
@@ -100,6 +114,7 @@ def showWindow():
         else:
             t.scatter = None
 
+    #random outline scatter changed function
     def set_scatter_random_outline(s):
         isChecked = ui.random_outline_checkbox.checkState()
         if isChecked:
@@ -109,6 +124,7 @@ def showWindow():
         else:
             t.scatter = None
 
+    #random scatter fill changed function
     def set_scatter_random_fill(s):
         isChecked = ui.random_fill_checkbox.checkState()
         if isChecked:
@@ -118,6 +134,7 @@ def showWindow():
         else:
             t.scatter = None
 
+    #duplicate box changed
     def set_duplicate(d):
         isChecked = ui.duplicate.checkState()
         if isChecked:
@@ -130,9 +147,13 @@ def showWindow():
         t.num_duplicate = int(n)
     
     #find a random 3D point that is exactly the given distance away from (0,0,0)
+    #using 3D point distance formula
     def rand_3d(dist):
+        #first pick a random value for x
         x = math.sqrt(random.random() * dist ** 2) * random.choice((1, -1))
+        #Then choose a value for y with the new maximum of dist^2 - x^2
         y = math.sqrt(random.random() * (dist ** 2 - x ** 2)) * random.choice((1, -1))
+        #Finally, the difference is z
         z = math.sqrt(dist ** 2 - x ** 2 - y ** 2) * random.choice((1, -1))
 
         return (x, y, z)
@@ -144,6 +165,7 @@ def showWindow():
 
     #apply button clicked
     def apply():
+        #User error handling
         if t.center == None:
             ui.warnings.setText("<font color='red'>Warning:Please set a center object.</font>")
             return
@@ -158,14 +180,18 @@ def showWindow():
             return
         elif t.radius == 0.0:
             ui.warnings.setText("<font color='red'>Warning:Radius is set to 0 cm.</font>") 
-        else:
+        
+        else: # all proper fields have been set
             ui.warnings.setText("")
+
+        #if not duplicating objects
         if(t.duplicate == False):
             if(t.shape == "circle"):
                 #shape is circle and outline is uniform
                 if(t.scatter == "uniform_outline"):
                     #find degrees to rotate around 
                     degrees = 360.0 / (len(t.outer))
+                    #degrees accumulator 
                     deg_acc = 0
                     #find world position of center
                     center_world_pos = cmds.xform(t.center,q=1,ws=1,rp=1)
@@ -177,13 +203,15 @@ def showWindow():
                         
                         #Add the radius to the z-axis
                         obj_z = center_z + t.radius
+                        #move each outer object to center (+ radius on z axis)
                         cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
-
+                        #convert degrees to radians
                         radians = (deg_acc) * (math.pi / 180)
-
+                        #rotate outer objects around center object about x axis by set radians value
                         x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        #rotate outer objects around center object about z axis by set radians value
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
-
+                        #move objects to new locations
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
 
                         deg_acc += degrees
@@ -204,10 +232,11 @@ def showWindow():
                         cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
                         radians = (degrees) * (math.pi / 180)
-
+                        #rotate outer objects around center object about x axis by set radians value
                         x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        #rotate outer objects around center object about z axis by set radians value
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
-
+                        #move objects to new locations
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
                 elif(t.scatter == "random_fill"):
                     #find world position of center
@@ -227,13 +256,14 @@ def showWindow():
                         cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
                         radians = (degrees) * (math.pi / 180)
-
+                        #rotate outer objects around center object about x axis by set radians value
                         x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        #rotate outer objects around center object about z axis by set radians value
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
             if(t.shape == "sphere"):
-                #shape is circle and outline is uniform
+                #shape is sphere and outline is uniform
                 if(t.scatter == "uniform_outline"):
                     #find degrees to rotate around 
                     degrees = 360.0 / (len(t.outer))
@@ -251,8 +281,9 @@ def showWindow():
                         cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
                         radians = (deg_acc) * (math.pi / 180)
-
+                        #rotate outer objects around center object about x axis by set radians value
                         x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        #rotate outer objects around center object about z axis by set radians value
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
@@ -323,8 +354,9 @@ def showWindow():
                         cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
                         radians = (deg_acc) * (math.pi / 180)
-
+                        #rotate outer objects around center object about x axis by set radians value
                         x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        #rotate outer objects around center object about z axis by set radians value
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
@@ -347,8 +379,9 @@ def showWindow():
                         cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
                         radians = (degrees) * (math.pi / 180)
-
+                        #rotate outer objects around center object about x axis by set radians value
                         x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        #rotate outer objects around center object about z axis by set radians value
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
@@ -370,8 +403,9 @@ def showWindow():
                         cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
                         radians = (degrees) * (math.pi / 180)
-
+                        #rotate outer objects around center object about x axis by set radians value
                         x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        #rotate outer objects around center object about z axis by set radians value
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )
@@ -394,8 +428,9 @@ def showWindow():
                         cmds.move( center_x, center_y, obj_z, cmds.ls(obj)[0], absolute=True )
 
                         radians = (deg_acc) * (math.pi / 180)
-
+                        #rotate outer objects around center object about x axis by set radians value
                         x_new = center_x + math.cos(radians) * (center_x - center_x) - math.sin(radians) * (obj_z - center_z) 
+                        #rotate outer objects around center object about z axis by set radians value
                         z_new = center_z + math.sin(radians) * (center_x - center_x) + math.cos(radians) * (obj_z - center_z) 
 
                         cmds.move( x_new, center_y, z_new, cmds.ls(obj)[0], worldSpaceDistance=True )

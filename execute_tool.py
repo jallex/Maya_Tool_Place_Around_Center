@@ -1,3 +1,8 @@
+# Maya tool which allows users to easily and quickly place objects in/around another object 
+# with a set radius and many other customizable parameters.
+
+# Instructions: Make any changes to the path desired and run this file.
+
 import sys
 
 #SET THIS FOLDER to the parent folder that you've downloaded the repository to
