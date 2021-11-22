@@ -30,7 +30,7 @@ class Transform():
 #show gui window
 def showWindow():
     # get this files location so we can find the .ui file in the /ui/ folder alongside it
-    UI_FILE = str(Path(__file__).parent.resolve() / "gui_2.ui")
+    UI_FILE = str(Path(__file__).parent.resolve() / "gui.ui")
     loader = QUiLoader()
     file = QFile(UI_FILE)
     file.open(QFile.ReadOnly)
