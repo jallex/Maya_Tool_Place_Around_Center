@@ -45,4 +45,5 @@ This tool allows the user to
 2. Rotate objects inward towards center, example: chairs around a table
 3. Random scale of objects
 4. Prevent objects from colliding with each other
+5. Patterns - such as placing houses or bricks
 
