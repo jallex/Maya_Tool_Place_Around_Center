@@ -1,6 +1,8 @@
 # Maya Tool Place Around Center
 A Maya tool written in Python3 using maya.cmds that allows users to easily and quickly place objects in/around another object with a set radius and many other customizable parameters.
 
+Note: Python3 is compatible with Maya 2022 and onward
+
   <p align="left">
    <img src="https://user-images.githubusercontent.com/44556715/138212661-d20f39b0-f849-45e0-b1cd-94a4d40f1a6a.png">
   </p>
@@ -35,3 +37,12 @@ This tool allows the user to
 3. Open the "execute_tool.py" file in the Maya script editor
 4. Run the script, and the GUI for the tool will appear on screen.
 5. Select the center object, surrounding outside objects, and other parameters using GUI and press "Apply" - then watch the magic happen! 
+
+
+----------------
+# Future goals
+1. Allow for a higher radius than 99.0
+2. Rotate objects inward towards center, example: chairs around a table
+3. Random scale of objects
+4. Prevent objects from colliding with each other
+
